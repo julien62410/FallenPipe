@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\Pipe\SC_PipeTrigger.cs" />
     <Compile Include="Assets\Script\Camera\SC_Camera.cs" />
+    <Compile Include="Assets\Script\Lever\SC_Lever.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -2,12 +2,17 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SC_Camera : MonoBehaviour
 {
-    public const int basicY = -33;
-    public const int basicZ = -70;
-    public GameObject Player;
+    private bool isPlaying = false;
+
+    public const int basicY = -22;
+    public const int basicZ = -50;
+
+    public GameObject player;
+    public Button tapToStart;
 
     private void Start()
     {
@@ -17,32 +22,56 @@ public class SC_Camera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MoveWithTheBall();
-        GetTouchInput();
+        if (isPlaying)
+        {
+            MoveWithTheBall();
+            GetTouchInput();
+        }
+        else
+        {
+            StartGame();
+        }
+    }
+
+    private void StartGame()
+    {
+        if (Input.touchCount > 0)
+        {
+            player.GetComponent<Rigidbody>().useGravity = true;
+            tapToStart.gameObject.SetActive(false);
+            isPlaying = true;
+        }
     }
 
     private void MoveWithTheBall ()
     {
-        this.transform.position = new Vector3(this.transform.position.x, Player.transform.position.y + basicY, this.transform.position.z);
+        this.transform.position = new Vector3(this.transform.position.x, player.transform.position.y + basicY, this.transform.position.z);
     }
 
     private void GetTouchInput()
     {
         if (Input.touchCount > 0)
-        {
-            Debug.Log("input");
-            
+        {            
             Touch touch = Input.GetTouch(0);
-            Vector3 touchPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, -basicZ));
-            Ray ray = Camera.main.ScreenPointToRay(touchPosition);
-            RaycastHit hitInfo;
 
-            Debug.Log((touchPosition));
-
-            if (Physics.Raycast(ray, out hitInfo))
+            if (touch.phase == TouchPhase.Began)
             {
-                Debug.Log(("hit"));
-                Debug.Log(hitInfo.collider.gameObject.name);
+                Vector3 touchPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, -basicZ));
+                Ray ray = new Ray(this.transform.position, touchPosition - this.transform.position);
+                RaycastHit hitInfo;
+
+                if (Physics.Raycast(ray, out hitInfo))
+                {
+                    if (hitInfo.transform.CompareTag("Intersection"))
+                    {
+                        hitInfo.transform.parent.GetComponentInChildren<SC_Lever>().SwitchRotation();
+                    }
+
+                    else if (hitInfo.transform.CompareTag("Lever"))
+                    {
+                        hitInfo.transform.GetComponent<SC_Lever>().SwitchRotation();
+                    }
+                }
             }
             
         }
